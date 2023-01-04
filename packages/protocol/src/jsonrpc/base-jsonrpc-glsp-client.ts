@@ -86,15 +86,17 @@ export class BaseJsonrpcGLSPClient implements GLSPClient {
     }
 
     async start(): Promise<void> {
-        try {
-            this.state = ClientState.Starting;
-            const connection = await this.resolveConnection();
-            connection.listen();
-            this.resolvedConnection = connection;
-            this.state = ClientState.Running;
-        } catch (error) {
-            JsonrpcGLSPClient.error('Failed to start connection to server', error);
-            this.state = ClientState.StartFailed;
+        if (!this.isConnectionActive()) {
+            try {
+                this.state = ClientState.Starting;
+                const connection = await this.resolveConnection();
+                connection.listen();
+                this.resolvedConnection = connection;
+                this.state = ClientState.Running;
+            } catch (error) {
+                JsonrpcGLSPClient.error('Failed to start connection to server', error);
+                this.state = ClientState.StartFailed;
+            }
         }
     }
 
